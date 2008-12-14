@@ -24,6 +24,10 @@ class Randexp
         union(parse($1), parse($2))                                     #implied group: /..(..)/
       when source =~ /^(.*)\[\:(.*)\:\]$/
         union(parse($1), random($2))                                    #custom random: /[:word:]/
+      when source =~ /^\[(.*?)\]$/
+        recursive_intersection($1.split(//))
+      when source =~ /^(.*)(\[.*?\])$/
+        union(parse($1), parse($2))
       when source =~ /^(.*)\\([wsdc])$/
         union(parse($1), random($2))                                    #reserved random: /..\w/
       when source =~ /^(.*)\\(.)$/ || source =~ /(.*)(.|\s)$/
@@ -83,6 +87,16 @@ class Randexp
         [:intersection, lhs] + rhs[1..-1]
       else
         [:intersection, lhs, rhs]
+      end
+    end
+
+    def self.recursive_intersection(list)
+      head = list.first
+      tail = list[1..-1]
+      if(tail.empty?)
+        parse(head)
+      else
+        [:intersection, parse(head), recursive_intersection(tail)]
       end
     end
 

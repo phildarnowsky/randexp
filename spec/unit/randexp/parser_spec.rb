@@ -57,6 +57,20 @@ describe Randexp::Parser do
     end
   end
 
+  describe ".recursive_intersection" do
+    it "should return the parse of the first (only) element if passed a one-element list" do
+      Randexp::Parser.recursive_intersection(['a']).should == [:literal, 'a']
+    end
+
+    it "should return an intersection sexp if passed a two-element list" do
+      Randexp::Parser.recursive_intersection(['a', 'b']).should == [:intersection, [:literal, 'a'], [:literal, 'b']]
+    end
+
+    it "should return nested intersection sexps if passed a list of length >2" do
+      Randexp::Parser.recursive_intersection(['a', 'b', 'c', 'd']).should == [:intersection, [:literal, 'a'], [:intersection, [:literal, 'b'], [:intersection, [:literal, 'c'], [:literal, 'd']]]]
+    end
+  end
+
   describe ".random" do
     it "should return a :random sexp" do
       Randexp::Parser.random('w').should be_instance_of(Array)
